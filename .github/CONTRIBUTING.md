@@ -1,6 +1,6 @@
-# Contributing to ethjs-provider-http
+# Contributing to vapjs-provider-http
 
-Love ethjs-provider-http and want to help? Thanks so much, there's something to do for everybody!
+Love vapjs-provider-http and want to help? Thanks so much, there's something to do for everybody!
 
 Please take a moment to review this document in order to make the contribution process easy and effective for everyone involved.
 
@@ -8,7 +8,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 ## Using the issue tracker
 
-The [issue tracker](https://github.com/ethjs/ethjs-provider-http/issues) is
+The [issue tracker](https://github.com/vapjs/vapjs-provider-http/issues) is
 the preferred channel for [bug reports](#bugs), [features requests](#features)
 and [submitting pull requests](#pull-requests).
 
@@ -76,11 +76,11 @@ included in the project:
 
    ```bash
    # Clone your fork of the repo into the current directory
-   git clone https://github.com/<your-username>/ethjs-provider-signer.git
+   git clone https://github.com/<your-username>/vapjs-provider-signer.git
    # Navigate to the newly cloned directory
-   cd ethjs-provider-signer
+   cd vapjs-provider-signer
    # Assign the original repo to a remote called "upstream"
-   git remote add upstream https://github.com/ethjs/ethjs-provider-http.git
+   git remote add upstream https://github.com/vapjs/vapjs-provider-http.git
    ```
 
 2. If you cloned a while ago, get the latest changes from upstream:
@@ -113,7 +113,7 @@ included in the project:
 7. [Open a Pull Request](https://help.github.com/articles/using-pull-requests/)
     with a clear title and description.
 
-**DESIGN NOTE**: ethjs-provider-signer follows the UNIX programming philosophy. Please consider this before contributing, keep your commits/modules concise and to the point.
+**DESIGN NOTE**: vapjs-provider-signer follows the UNIX programming philosophy. Please consider this before contributing, keep your commits/modules concise and to the point.
 
 Read more here:
 http://www.catb.org/esr/writings/taoup/html/ch01s06.html

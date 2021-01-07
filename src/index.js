@@ -1,5 +1,5 @@
-const HTTPProvider = require('ethjs-provider-http');
-const EthRPC = require('ethjs-rpc');
+const HTTPProvider = require('vapjs-provider-http');
+const VapRPC = require('vapjs-rpc');
 
 module.exports = SignerProvider;
 
@@ -12,9 +12,9 @@ module.exports = SignerProvider;
  * @returns {Object} provider instance
  */
 function SignerProvider(path, options) {
-  if (!(this instanceof SignerProvider)) { throw new Error('[ethjs-provider-signer] the SignerProvider instance requires the "new" flag in order to function normally (e.g. `const eth = new Eth(new SignerProvider(...));`).'); }
-  if (typeof options !== 'object') { throw new Error(`[ethjs-provider-signer] the SignerProvider requires an options object be provided with the 'privateKey' property specified, you provided type ${typeof options}.`); }
-  if (typeof options.signTransaction !== 'function') { throw new Error(`[ethjs-provider-signer] the SignerProvider requires an options object be provided with the 'signTransaction' property specified, you provided type ${typeof options.privateKey} (e.g. 'const eth = new Eth(new SignerProvider("http://ropsten.infura.io", { privateKey: (account, cb) => cb(null, 'some private key') }));').`); }
+  if (!(this instanceof SignerProvider)) { throw new Error('[vapjs-provider-signer] the SignerProvider instance requires the "new" flag in order to function normally (e.g. `const vap = new Vap(new SignerProvider(...));`).'); }
+  if (typeof options !== 'object') { throw new Error(`[vapjs-provider-signer] the SignerProvider requires an options object be provided with the 'privateKey' property specified, you provided type ${typeof options}.`); }
+  if (typeof options.signTransaction !== 'function') { throw new Error(`[vapjs-provider-signer] the SignerProvider requires an options object be provided with the 'signTransaction' property specified, you provided type ${typeof options.privateKey} (e.g. 'const vap = new Vap(new SignerProvider("http://ropsten.infura.io", { privateKey: (account, cb) => cb(null, 'some private key') }));').`); }
 
   const self = this;
   self.options = Object.assign({
@@ -22,7 +22,7 @@ function SignerProvider(path, options) {
   }, options);
   self.timeout = options.timeout || 0;
   self.provider = new self.options.provider(path, self.timeout); // eslint-disable-line
-  self.rpc = new EthRPC(self.provider);
+  self.rpc = new VapRPC(self.provider);
 }
 
 /**
@@ -35,7 +35,7 @@ function SignerProvider(path, options) {
  */
 SignerProvider.prototype.sendAsync = function (payload, callback) { // eslint-disable-line
   const self = this;
-  if (payload.method === 'eth_accounts' && self.options.accounts) {
+  if (payload.method === 'vap_accounts' && self.options.accounts) {
     self.options.accounts((accountsError, accounts) => {
       // create new output payload
       const inputPayload = Object.assign({}, {
@@ -46,17 +46,17 @@ SignerProvider.prototype.sendAsync = function (payload, callback) { // eslint-di
 
       callback(accountsError, inputPayload);
     });
-  } else if (payload.method === 'eth_sendTransaction') {
+  } else if (payload.method === 'vap_sendTransaction') {
     // get the nonce, if any
-    self.rpc.sendAsync({ method: 'eth_getTransactionCount', params: [payload.params[0].from, 'latest'] }, (nonceError, nonce) => { // eslint-disable-line
+    self.rpc.sendAsync({ method: 'vap_getTransactionCount', params: [payload.params[0].from, 'latest'] }, (nonceError, nonce) => { // eslint-disable-line
       if (nonceError) {
-        return callback(new Error(`[ethjs-provider-signer] while getting nonce: ${nonceError}`), null);
+        return callback(new Error(`[vapjs-provider-signer] while getting nonce: ${nonceError}`), null);
       }
 
       // get the gas price, if any
-      self.rpc.sendAsync({ method: 'eth_gasPrice' }, (gasPriceError, gasPrice) => { // eslint-disable-line
+      self.rpc.sendAsync({ method: 'vap_gasPrice' }, (gasPriceError, gasPrice) => { // eslint-disable-line
         if (gasPriceError) {
-          return callback(new Error(`[ethjs-provider-signer] while getting gasPrice: ${gasPriceError}`), null);
+          return callback(new Error(`[vapjs-provider-signer] while getting gasPrice: ${gasPriceError}`), null);
         }
 
         // build raw tx payload with nonce and gasprice as defaults to be overriden
@@ -72,14 +72,14 @@ SignerProvider.prototype.sendAsync = function (payload, callback) { // eslint-di
             const outputPayload = Object.assign({}, {
               id: payload.id,
               jsonrpc: payload.jsonrpc,
-              method: 'eth_sendRawTransaction',
+              method: 'vap_sendRawTransaction',
               params: [signedHexPayload],
             });
 
             // send payload
             self.provider.sendAsync(outputPayload, callback);
           } else {
-            callback(new Error(`[ethjs-provider-signer] while signing your transaction payload: ${JSON.stringify(keyError)}`), null);
+            callback(new Error(`[vapjs-provider-signer] while signing your transaction payload: ${JSON.stringify(keyError)}`), null);
           }
         });
       });

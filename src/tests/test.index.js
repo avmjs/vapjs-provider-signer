@@ -1,11 +1,11 @@
 const assert = require('chai').assert;
-const HTTPProvider = require('ethjs-provider-http'); // eslint-disable-line
+const HTTPProvider = require('vapjs-provider-http'); // eslint-disable-line
 const SignerProvider = require('../index.js'); // eslint-disable-line
-const Eth = require('ethjs-query'); // eslint-disable-line
+const Vap = require('vapjs-query'); // eslint-disable-line
 const Web3 = require('web3'); // eslint-disable-line
-const HttpProvider = require('ethjs-provider-http');
-const TestRPC = require('ethereumjs-testrpc');
-const sign = require('ethjs-signer').sign;
+const HttpProvider = require('vapjs-provider-http');
+const TestRPC = require('vaporyjs-testrpc');
+const sign = require('vapjs-signer').sign;
 const server = TestRPC.server({
   accounts: [{
     secretKey: '0xc55c58355a32c095c7074837467382924180748768422589f5f75a384e6f3b33',
@@ -49,14 +49,14 @@ describe('SignerProvider', () => {
       const provider = new SignerProvider('http://localhost:5012', {
         signTransaction: (rawTx, cb) => cb(null, sign(rawTx, '0xc55c58355a32c095c7074837467382924180748768422589f5f75a384e6f3b33')),
       });
-      const eth = new Eth(provider);
+      const vap = new Vap(provider);
 
-      eth.accounts((accountsError, accounts) => {
+      vap.accounts((accountsError, accounts) => {
         assert.equal(accountsError, null);
         assert.equal(typeof accounts, 'object');
         assert.equal(Array.isArray(accounts), true);
 
-        eth.getBalance(accounts[0], (balanceError, balanceResult) => {
+        vap.getBalance(accounts[0], (balanceError, balanceResult) => {
           assert.equal(balanceError, null);
           assert.equal(typeof balanceResult, 'object');
 
@@ -66,16 +66,16 @@ describe('SignerProvider', () => {
     });
 
     it('should perform normally for calls with tx count and gas price', (done) => {
-      const eth = new Eth(new SignerProvider('http://localhost:5012', {
+      const vap = new Vap(new SignerProvider('http://localhost:5012', {
         signTransaction: (rawTx, cb) => cb(null, sign(rawTx, '0xc55c58355a32c095c7074837467382924180748768422589f5f75a384e6f3b33')),
       }));
 
-      eth.accounts((accountsError, accounts) => {
+      vap.accounts((accountsError, accounts) => {
         assert.equal(accountsError, null);
         assert.equal(typeof accounts, 'object');
         assert.equal(Array.isArray(accounts), true);
 
-        eth.getBalance(accounts[0], (balanceError, balanceResult) => {
+        vap.getBalance(accounts[0], (balanceError, balanceResult) => {
           assert.equal(balanceError, null);
           assert.equal(typeof balanceResult, 'object');
 
@@ -88,13 +88,13 @@ describe('SignerProvider', () => {
       const provider = new SignerProvider('http://localhost:5012', {
         signTransaction: (rawTx, cb) => cb(null, sign(rawTx, '0xc55c58355a32c095c7074837467382924180748768422589f5f75a384e6f3b33')),
       });
-      const eth = new Eth(provider);
+      const vap = new Vap(provider);
 
-      eth.accounts((accountsError, accounts) => {
+      vap.accounts((accountsError, accounts) => {
         assert.equal(accountsError, null);
         assert.equal(Array.isArray(accounts), true);
 
-        eth.sendTransaction({
+        vap.sendTransaction({
           from: accounts[0],
           to: '0xc55c58355a32c095c70748374673829241807487',
           data: '0x',
@@ -105,7 +105,7 @@ describe('SignerProvider', () => {
           assert.equal(typeof txHash, 'string');
 
           setTimeout(() => {
-            eth.getBalance('0xc55c58355a32c095c70748374673829241807487')
+            vap.getBalance('0xc55c58355a32c095c70748374673829241807487')
             .then((balanceResult) => {
               assert.equal(typeof balanceResult, 'object');
               assert.equal(balanceResult.toNumber(10), 5000);
@@ -124,7 +124,7 @@ describe('SignerProvider', () => {
         provider: function Provider() {
           const self = this;
           self.sendAsync = (payload, cb) => {
-            if (payload.method === 'eth_getTransactionCount') {
+            if (payload.method === 'vap_getTransactionCount') {
               cb(new Error('invalid nonce'), null);
             } else {
               baseProvider.sendAsync(payload, cb);
@@ -132,9 +132,9 @@ describe('SignerProvider', () => {
           };
         },
       });
-      const eth = new Eth(provider);
+      const vap = new Vap(provider);
 
-      eth.accounts((accountsError, accounts) => {
+      vap.accounts((accountsError, accounts) => {
         assert.equal(accountsError, null);
         assert.equal(Array.isArray(accounts), true);
         done();
@@ -146,9 +146,9 @@ describe('SignerProvider', () => {
         signTransaction: (rawTx, cb) => cb(null, sign(rawTx, '0xc55c58355a32c095c7074837467382924180748768422589f5f75a384e6f3b33')),
         accounts: (cb) => cb(null, ['0xc55c58355a32c095c70748374673829241807487']),
       });
-      const eth = new Eth(provider);
+      const vap = new Vap(provider);
 
-      eth.accounts((accountsError, accounts1) => {
+      vap.accounts((accountsError, accounts1) => {
         assert.equal(accountsError, null);
         assert.equal(Array.isArray(accounts1), true);
 
@@ -163,7 +163,7 @@ describe('SignerProvider', () => {
         provider: function Provider() {
           const self = this;
           self.sendAsync = (payload, cb) => {
-            if (payload.method === 'eth_gasPrice') {
+            if (payload.method === 'vap_gasPrice') {
               cb(new Error('invalid nonce'), null);
             } else {
               baseProvider.sendAsync(payload, cb);
@@ -171,13 +171,13 @@ describe('SignerProvider', () => {
           };
         },
       });
-      const eth = new Eth(provider);
+      const vap = new Vap(provider);
 
-      eth.accounts((accountsError, accounts) => {
+      vap.accounts((accountsError, accounts) => {
         assert.equal(accountsError, null);
         assert.equal(Array.isArray(accounts), true);
 
-        eth.sendTransaction({
+        vap.sendTransaction({
           from: accounts[0],
           to: '0xc55c58355a32c095c70748374673829241807487',
           data: '0x',
@@ -197,7 +197,7 @@ describe('SignerProvider', () => {
         provider: function Provider() {
           const self = this;
           self.sendAsync = (payload, cb) => {
-            if (payload.method === 'eth_getTransactionCount') {
+            if (payload.method === 'vap_getTransactionCount') {
               cb(new Error('invalid nonce'), null);
             } else {
               baseProvider.sendAsync(payload, cb);
@@ -205,13 +205,13 @@ describe('SignerProvider', () => {
           };
         },
       });
-      const eth = new Eth(provider);
+      const vap = new Vap(provider);
 
-      eth.accounts((accountsError, accounts) => {
+      vap.accounts((accountsError, accounts) => {
         assert.equal(accountsError, null);
         assert.equal(Array.isArray(accounts), true);
 
-        eth.sendTransaction({
+        vap.sendTransaction({
           from: accounts[0],
           to: '0xc55c58355a32c095c70748374673829241807487',
           data: '0x',
@@ -228,13 +228,13 @@ describe('SignerProvider', () => {
       const provider = new SignerProvider('http://localhost:5012', {
         signTransaction: (rawTx, cb) => cb(new Error('account does not have permission')),
       });
-      const eth = new Eth(provider);
+      const vap = new Vap(provider);
 
-      eth.accounts((accountsError, accounts) => {
+      vap.accounts((accountsError, accounts) => {
         assert.equal(accountsError, null);
         assert.equal(Array.isArray(accounts), true);
 
-        eth.sendTransaction({
+        vap.sendTransaction({
           from: accounts[0],
           to: '0xc55c58355a32c095c70748374673829241807487',
           data: '0x',

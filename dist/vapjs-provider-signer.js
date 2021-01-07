@@ -75,7 +75,7 @@ return /******/ (function(modules) { // webpackBootstrap
 'use strict';
 
 var HTTPProvider = __webpack_require__(1);
-var EthRPC = __webpack_require__(2);
+var VapRPC = __webpack_require__(2);
 
 module.exports = SignerProvider;
 
@@ -89,13 +89,13 @@ module.exports = SignerProvider;
  */
 function SignerProvider(path, options) {
   if (!(this instanceof SignerProvider)) {
-    throw new Error('[ethjs-provider-signer] the SignerProvider instance requires the "new" flag in order to function normally (e.g. `const eth = new Eth(new SignerProvider(...));`).');
+    throw new Error('[vapjs-provider-signer] the SignerProvider instance requires the "new" flag in order to function normally (e.g. `const vap = new Vap(new SignerProvider(...));`).');
   }
   if (typeof options !== 'object') {
-    throw new Error('[ethjs-provider-signer] the SignerProvider requires an options object be provided with the \'privateKey\' property specified, you provided type ' + typeof options + '.');
+    throw new Error('[vapjs-provider-signer] the SignerProvider requires an options object be provided with the \'privateKey\' property specified, you provided type ' + typeof options + '.');
   }
   if (typeof options.signTransaction !== 'function') {
-    throw new Error('[ethjs-provider-signer] the SignerProvider requires an options object be provided with the \'signTransaction\' property specified, you provided type ' + typeof options.privateKey + ' (e.g. \'const eth = new Eth(new SignerProvider("http://ropsten.infura.io", { privateKey: (account, cb) => cb(null, \'some private key\') }));\').');
+    throw new Error('[vapjs-provider-signer] the SignerProvider requires an options object be provided with the \'signTransaction\' property specified, you provided type ' + typeof options.privateKey + ' (e.g. \'const vap = new Vap(new SignerProvider("http://ropsten.infura.io", { privateKey: (account, cb) => cb(null, \'some private key\') }));\').');
   }
 
   var self = this;
@@ -104,7 +104,7 @@ function SignerProvider(path, options) {
   }, options);
   self.timeout = options.timeout || 0;
   self.provider = new self.options.provider(path, self.timeout); // eslint-disable-line
-  self.rpc = new EthRPC(self.provider);
+  self.rpc = new VapRPC(self.provider);
 }
 
 /**
@@ -118,7 +118,7 @@ function SignerProvider(path, options) {
 SignerProvider.prototype.sendAsync = function (payload, callback) {
   // eslint-disable-line
   var self = this;
-  if (payload.method === 'eth_accounts' && self.options.accounts) {
+  if (payload.method === 'vap_accounts' && self.options.accounts) {
     self.options.accounts(function (accountsError, accounts) {
       // create new output payload
       var inputPayload = Object.assign({}, {
@@ -129,19 +129,19 @@ SignerProvider.prototype.sendAsync = function (payload, callback) {
 
       callback(accountsError, inputPayload);
     });
-  } else if (payload.method === 'eth_sendTransaction') {
+  } else if (payload.method === 'vap_sendTransaction') {
     // get the nonce, if any
-    self.rpc.sendAsync({ method: 'eth_getTransactionCount', params: [payload.params[0].from, 'latest'] }, function (nonceError, nonce) {
+    self.rpc.sendAsync({ method: 'vap_getTransactionCount', params: [payload.params[0].from, 'latest'] }, function (nonceError, nonce) {
       // eslint-disable-line
       if (nonceError) {
-        return callback(new Error('[ethjs-provider-signer] while getting nonce: ' + nonceError), null);
+        return callback(new Error('[vapjs-provider-signer] while getting nonce: ' + nonceError), null);
       }
 
       // get the gas price, if any
-      self.rpc.sendAsync({ method: 'eth_gasPrice' }, function (gasPriceError, gasPrice) {
+      self.rpc.sendAsync({ method: 'vap_gasPrice' }, function (gasPriceError, gasPrice) {
         // eslint-disable-line
         if (gasPriceError) {
-          return callback(new Error('[ethjs-provider-signer] while getting gasPrice: ' + gasPriceError), null);
+          return callback(new Error('[vapjs-provider-signer] while getting gasPrice: ' + gasPriceError), null);
         }
 
         // build raw tx payload with nonce and gasprice as defaults to be overriden
@@ -158,14 +158,14 @@ SignerProvider.prototype.sendAsync = function (payload, callback) {
             var outputPayload = Object.assign({}, {
               id: payload.id,
               jsonrpc: payload.jsonrpc,
-              method: 'eth_sendRawTransaction',
+              method: 'vap_sendRawTransaction',
               params: [signedHexPayload]
             });
 
             // send payload
             self.provider.sendAsync(outputPayload, callback);
           } else {
-            callback(new Error('[ethjs-provider-signer] while signing your transaction payload: ' + JSON.stringify(keyError)), null);
+            callback(new Error('[vapjs-provider-signer] while signing your transaction payload: ' + JSON.stringify(keyError)), null);
           }
         });
       });
@@ -197,7 +197,7 @@ var XHR2 = __webpack_require__(3);
  * InvalidResponseError helper for invalid errors.
  */
 function invalidResponseError(result, host) {
-  var message = !!result && !!result.error && !!result.error.message ? '[ethjs-provider-http] ' + result.error.message : '[ethjs-provider-http] Invalid JSON RPC response from host provider ' + host + ': ' + JSON.stringify(result, null, 2);
+  var message = !!result && !!result.error && !!result.error.message ? '[vapjs-provider-http] ' + result.error.message : '[vapjs-provider-http] Invalid JSON RPC response from host provider ' + host + ': ' + JSON.stringify(result, null, 2);
   return new Error(message);
 }
 
@@ -206,10 +206,10 @@ function invalidResponseError(result, host) {
  */
 function HttpProvider(host, timeout) {
   if (!(this instanceof HttpProvider)) {
-    throw new Error('[ethjs-provider-http] the HttpProvider instance requires the "new" flag in order to function normally (e.g. `const eth = new Eth(new HttpProvider());`).');
+    throw new Error('[vapjs-provider-http] the HttpProvider instance requires the "new" flag in order to function normally (e.g. `const vap = new Vap(new HttpProvider());`).');
   }
   if (typeof host !== 'string') {
-    throw new Error('[ethjs-provider-http] the HttpProvider instance requires that the host be specified (e.g. `new HttpProvider("http://localhost:8545")` or via service like infura `new HttpProvider("http://ropsten.infura.io")`)');
+    throw new Error('[vapjs-provider-http] the HttpProvider instance requires that the host be specified (e.g. `new HttpProvider("http://localhost:8545")` or via service like infura `new HttpProvider("http://ropsten.infura.io")`)');
   }
 
   var self = this;
@@ -249,13 +249,13 @@ HttpProvider.prototype.sendAsync = function (payload, callback) {
   };
 
   request.ontimeout = function () {
-    callback('[ethjs-provider-http] CONNECTION TIMEOUT: http request timeout after ' + self.timeout + ' ms. (i.e. your connect has timed out for whatever reason, check your provider).', null);
+    callback('[vapjs-provider-http] CONNECTION TIMEOUT: http request timeout after ' + self.timeout + ' ms. (i.e. your connect has timed out for whatever reason, check your provider).', null);
   };
 
   try {
     request.send(JSON.stringify(payload));
   } catch (error) {
-    callback('[ethjs-provider-http] CONNECTION ERROR: Couldn\'t connect to node \'' + self.host + '\': ' + JSON.stringify(error, null, 2), null);
+    callback('[vapjs-provider-http] CONNECTION ERROR: Couldn\'t connect to node \'' + self.host + '\': ' + JSON.stringify(error, null, 2), null);
   }
 };
 
@@ -268,22 +268,22 @@ module.exports = HttpProvider;
 "use strict";
 'use strict';
 
-module.exports = EthRPC;
+module.exports = VapRPC;
 
 /**
- * Constructs the EthRPC instance
+ * Constructs the VapRPC instance
  *
- * @method EthRPC
- * @param {Object} cprovider the eth rpc provider web3 standard..
+ * @method VapRPC
+ * @param {Object} cprovider the vap rpc provider web3 standard..
  * @param {Object} options the options, if any
- * @returns {Object} ethrpc instance
+ * @returns {Object} vaprpc instance
  */
-function EthRPC(cprovider, options) {
+function VapRPC(cprovider, options) {
   var self = this;
   var optionsObject = options || {};
 
-  if (!(this instanceof EthRPC)) {
-    throw new Error('[ethjs-rpc] the EthRPC object requires the "new" flag in order to function normally (i.e. `const eth = new EthRPC(provider);`).');
+  if (!(this instanceof VapRPC)) {
+    throw new Error('[vapjs-rpc] the VapRPC object requires the "new" flag in order to function normally (i.e. `const vap = new VapRPC(provider);`).');
   }
 
   self.options = Object.assign({
@@ -293,7 +293,7 @@ function EthRPC(cprovider, options) {
   self.idCounter = Math.floor(Math.random() * self.options.max);
   self.setProvider = function (provider) {
     if (typeof provider !== 'object') {
-      throw new Error('[ethjs-rpc] the EthRPC object requires that the first input \'provider\' must be an object, got \'' + typeof provider + '\' (i.e. \'const eth = new EthRPC(provider);\')');
+      throw new Error('[vapjs-rpc] the VapRPC object requires that the first input \'provider\' must be an object, got \'' + typeof provider + '\' (i.e. \'const vap = new VapRPC(provider);\')');
     }
 
     self.currentProvider = provider;
@@ -309,14 +309,14 @@ function EthRPC(cprovider, options) {
  * @param {Function} cb the async standard callback
  * @callback {Object|Array|Boolean|String} vary result instance output
  */
-EthRPC.prototype.sendAsync = function sendAsync(payload, cb) {
+VapRPC.prototype.sendAsync = function sendAsync(payload, cb) {
   var self = this;
   self.idCounter = self.idCounter % self.options.max;
   self.currentProvider.sendAsync(createPayload(payload, self.idCounter++), function (err, response) {
     var responseObject = response || {};
 
     if (err || responseObject.error) {
-      var payloadErrorMessage = '[ethjs-rpc] ' + (responseObject.error && 'rpc' || '') + ' error with payload ' + JSON.stringify(payload, null, self.options.jsonSpace) + ' ' + (err || JSON.stringify(responseObject.error, null, self.options.jsonSpace));
+      var payloadErrorMessage = '[vapjs-rpc] ' + (responseObject.error && 'rpc' || '') + ' error with payload ' + JSON.stringify(payload, null, self.options.jsonSpace) + ' ' + (err || JSON.stringify(responseObject.error, null, self.options.jsonSpace));
       return cb(new Error(payloadErrorMessage), null);
     }
 
@@ -358,4 +358,4 @@ module.exports = __webpack_require__(0);
 /******/ ])
 });
 ;
-//# sourceMappingURL=ethjs-provider-signer.js.map
+//# sourceMappingURL=vapjs-provider-signer.js.map

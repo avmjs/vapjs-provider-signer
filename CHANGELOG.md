@@ -6,15 +6,15 @@
 
 # 0.1.2 -- remove deps
 
-1. Remove `ethereumjs-tx` and `ethereumjs-util`
-2. Uses `ethjs-signer` for signing now, no need to include it in the module
+1. Remove `vaporyjs-tx` and `vaporyjs-util`
+2. Uses `vapjs-signer` for signing now, no need to include it in the module
 
 # 0.1.1 -- config fixes
 
 1. webpack config updates
 2. build config updates
 
-# 0.0.1 -- ethjs-provider-signer
+# 0.0.1 -- vapjs-provider-signer
 
 1. Basic testing
 2. Basic docs

@@ -2,7 +2,7 @@ var webpack = require('webpack');  // eslint-disable-line
 var path = require('path');        // eslint-disable-line
 
 var env = process.env.NODE_ENV;    // eslint-disable-line
-var filename = 'ethjs-provider-signer';      // eslint-disable-line
+var filename = 'vapjs-provider-signer';      // eslint-disable-line
 var library = 'SignerProvider';          // eslint-disable-line
 var config = {                    // eslint-disable-line
   entry: [
